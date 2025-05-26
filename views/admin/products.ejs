@@ -1,0 +1,37 @@
+<%- include('../includes/head.ejs') %>
+  </head>
+  <body>
+    <%- include('../includes/navigation.ejs') %>
+    <main class="main">
+      <% if (prods.length > 0) { %>
+      <div class="box-container">
+        <% for (let p of prods ) { %>
+        <div class="box">
+          <div class="inner">
+            <p class="title"><%= p.title %></p>
+            <div class="image-container">
+              <img class="product-img" src="<%= p.imageUrl %>" alt="<%= p.imageUrl %>">
+            </div>
+            <p class="price">$<%= p.price %></p>
+            <p class="description"><%= p.description %></p>
+            <div class="btn-grp">
+              <a href="/admin/edit-product/<%= p.id %>?edit=true" class="btn btn-edit">Edit</a>
+              <form action="/admin/delete-product" method="post">
+                <input type="hidden" name="productId" value="<%= p.id %>">
+                <button type="submit" class="btn btn-delete">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <% } %>
+      </div>
+      <% } else {%>
+        <div class="box">
+          <div class="inner">
+            <p class="empty-title">No Products Available</p>
+            <p class="empty-message">We couldn't find any products to display right now.</p>
+          </div>
+        </div>
+      <% } %>
+    </main>
+<%- include('../includes/end.ejs') %>

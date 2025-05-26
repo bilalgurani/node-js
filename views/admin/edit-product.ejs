@@ -1,0 +1,34 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/form.css" />
+  </head>
+  <body>
+    <%- include('../includes/navigation.ejs') %>
+    <main class="main">
+      <form action="/admin/<% if (edit) { %>edit-product<% } else { %>add-product<% } %> " method="post">
+        <div class="form">
+          <div class="form-div">
+            <label for="title">Title</label>
+            <input placeholder="Enter product title" type="text" id="title" name="title" value="<% if (edit) { %><%=product.title%><% } %>" />
+          </div>
+          <div class="form-div">
+            <label for="imageUrl">Image URL</label>
+            <input placeholder="Enter Image URL" type="text" id="imageUrl" name="imageUrl" value="<% if (edit) { %><%=product.imageUrl%><% } %>" />
+          </div>
+          <div class="form-div">
+            <label for="price">Price</label>
+            <input placeholder="Enter product price" type="number" id="price" name="price" value="<% if (edit) { %><%=product.price%><% } %>" />
+          </div>
+          <div class="form-div">
+            <label for="description">Description</label>
+            <textarea placeholder="Enter 100 words product description" rows="5" name="description" 
+            id="description"><% if (edit) { %><%=product.description%><% } %></textarea>
+          </div>
+          <% if (edit) { %>
+            <input type="hidden" value="<%= product.id %>" name="productId">
+          <% } %>
+          
+          <button type="submit"><%= title %></button>
+        </div>
+      </form>
+    </main>
+<%- include('../includes/end.ejs') %>
