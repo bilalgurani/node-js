@@ -1,3 +1,4 @@
+/* POSTGRESQL 
 const { Pool } = require("pg");
 
 const pool = new Pool({
@@ -9,3 +10,12 @@ const pool = new Pool({
 });
 
 module.exports = pool;
+*/
+
+const Sequelize = require("sequelize");
+const sequelize = new Sequelize('postgres', 'postgres', 'Bilal@1khan', {
+  host: 'localhost',
+  dialect: 'postgres'
+})
+
+module.exports = sequelize;

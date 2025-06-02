@@ -1,4 +1,19 @@
-const Product = require("../models/products")
+const Sequelize = require("sequelize");
+const sequelize = require("../util/database")
+
+const Cart = sequelize.define("cart", {
+  id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      allowNull: false,
+      primaryKey: true
+    },
+}, {schema: "shop"});
+
+module.exports = Cart;
+
+/* 
+const Product = require("./product")
 let cart = { products: [], totalPrice: 0 };
 module.exports = class Cart {
   static addProduct(id, productPrice) {
@@ -7,13 +22,10 @@ module.exports = class Cart {
     // Add new product / increase quantity
     Product.findById(id)
   .then(product => {
-    console.log("AAAA");
-    
-    console.log(product.rows[0]);
-    
     if (!product.rows[0]) {
       return;
     }
+    
   })
   .catch(error => {
     next(error);
@@ -46,3 +58,4 @@ module.exports = class Cart {
   }
 }
 }
+*/

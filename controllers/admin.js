@@ -1,4 +1,4 @@
-const Product = require('../models/products')
+const Product = require('../models/product')
 
 exports.getAddProducts = (req, res, next) => {
   const prodTitle = "Add Product";
@@ -10,36 +10,49 @@ exports.getAddProducts = (req, res, next) => {
   });
 };
 
-exports.postAddProducts = async (req, res, next) => {  
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
-  const des = req.body.description;
+exports.postAddProducts = async (req, res, next) => {    
+  const {title, image_url: imageUrl, price, description } = req.body;
   
-  const product = new Product(null, title, imageUrl, price, des);
-  
-  product.save().then(() => {
+  req.user.createProduct({
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl
+  }).then(() => { 
     res.redirect("/");
-  }).catch(error => {
-    next(error);
-  });
+  }).catch(err => {
+    console.log(err);
+  })
+  // req.user.createProduct({
+  //   title,
+  //   imageUrl,
+  //   price,
+  //   description
+  // })
+  // .then(() => {
+  //   res.redirect("/");
+  // }).catch(err => console.log(err))
 };
 
 exports.postEditProduct = (req, res, next) => {
   const id = req.body.productId; // get these from ejs file and in name tag
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
-  const des = req.body.description;
+  const updatedTitle = req.body.title;
+  const updatedImageUrl = req.body.image_url;
+  const updatedPrice = req.body.price;
+  const updatedDes = req.body.description;
 
-  const updatedProduct = new Product(id, title, imageUrl, price, des);
-  
-  updatedProduct.save().then(() => {
+  Product.findByPk(id)
+  .then(product => {
+    product.title = updatedTitle;
+    product.price = updatedPrice;
+    product.description = updatedDes;
+    product.imageUrl = updatedImageUrl;
+    return product.save();
+  })
+  .then(() => {
     res.redirect("/admin/products");
   })
-  .catch(error => {
-    next(error);
-  });
+  .catch(err => console.log(err))
 };
 
 exports.getEditProducts = (req, res, next) => {
@@ -49,16 +62,14 @@ exports.getEditProducts = (req, res, next) => {
     return res.redirect("/")
   }
   const productId = req.params.productId;
-  Product.findById(productId)
-  .then((product) => {
-    console.log(product.rows[0]);
-    
+  req.user.getProducts()
+  .then((products) => {
     res.render("admin/edit-product", {
       title: "Update product",
       docTitle: "Edit page",
       path: "/admin/edit-product",
       edit: editMode,
-      product: product.rows[0]
+      product: products[0]
     });
   })
   .catch(error => {
@@ -67,20 +78,26 @@ exports.getEditProducts = (req, res, next) => {
 };
 
 exports.getAdminProducts = async (req, res, next) => {
-  try {
-    const products = await Product.fetchAll();  
+  req.user.getProducts()
+  .then(products => {
     res.render("admin/products", {
       prods: products,
       docTitle: "Admin Products", 
       path: "/admin/products" 
     });
-  } catch(error) {
-    next(error);
-  }
+  })
+  .catch(err => console.log(err));
 }
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.deleteById(productId);
-  res.redirect("/admin/products");
+  Product.findByPk(productId)
+  .then(product => {
+    return product.destroy();
+  })
+  .then(() => {
+    res.redirect("/admin/products");
+  })
+  .catch(err => console.log(err))
+  
 }
