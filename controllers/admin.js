@@ -1,4 +1,5 @@
-const Product = require('../models/product')
+const Product = require('../models/product');
+const mongodb = require("mongodb");
 
 exports.getAddProducts = (req, res, next) => {
   const prodTitle = "Add Product";
@@ -7,31 +8,20 @@ exports.getAddProducts = (req, res, next) => {
     docTitle: "Product page",
     path: "/admin/add-product",
     edit: false,
+    isAuthenticated: req.isLoggedIn
   });
 };
 
 exports.postAddProducts = async (req, res, next) => {    
   const {title, image_url: imageUrl, price, description } = req.body;
-  
-  req.user.createProduct({
-    title: title,
-    price: price,
-    description: description,
-    imageUrl: imageUrl
-  }).then(() => { 
-    res.redirect("/");
+  const product = new Product(title, price, description, imageUrl, null, req.user._id);
+
+  product.save()
+  .then(() => { 
+    res.redirect("/admin/products");
   }).catch(err => {
     console.log(err);
   })
-  // req.user.createProduct({
-  //   title,
-  //   imageUrl,
-  //   price,
-  //   description
-  // })
-  // .then(() => {
-  //   res.redirect("/");
-  // }).catch(err => console.log(err))
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -41,18 +31,11 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedDes = req.body.description;
 
-  Product.findByPk(id)
-  .then(product => {
-    product.title = updatedTitle;
-    product.price = updatedPrice;
-    product.description = updatedDes;
-    product.imageUrl = updatedImageUrl;
-    return product.save();
-  })
-  .then(() => {
-    res.redirect("/admin/products");
-  })
-  .catch(err => console.log(err))
+  const product = new Product(updatedTitle, updatedPrice, updatedDes, updatedImageUrl, 
+    mongodb.ObjectId.createFromHexString(id));
+  product.save()
+  .then(res.redirect("/admin/products"))
+  .catch(err => console.log(err));
 };
 
 exports.getEditProducts = (req, res, next) => {
@@ -62,14 +45,15 @@ exports.getEditProducts = (req, res, next) => {
     return res.redirect("/")
   }
   const productId = req.params.productId;
-  req.user.getProducts()
-  .then((products) => {
+  Product.findById(productId)
+  .then((product) => {
     res.render("admin/edit-product", {
       title: "Update product",
       docTitle: "Edit page",
       path: "/admin/edit-product",
       edit: editMode,
-      product: products[0]
+      product: product,
+      isAuthenticated: req.isLoggedIn
     });
   })
   .catch(error => {
@@ -78,12 +62,13 @@ exports.getEditProducts = (req, res, next) => {
 };
 
 exports.getAdminProducts = async (req, res, next) => {
-  req.user.getProducts()
+  Product.fetchAll()
   .then(products => {
     res.render("admin/products", {
       prods: products,
       docTitle: "Admin Products", 
-      path: "/admin/products" 
+      path: "/admin/products",
+      isAuthenticated: req.isLoggedIn
     });
   })
   .catch(err => console.log(err));
@@ -91,13 +76,9 @@ exports.getAdminProducts = async (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.findByPk(productId)
-  .then(product => {
-    return product.destroy();
-  })
+  Product.deleteById(productId)
   .then(() => {
     res.redirect("/admin/products");
   })
   .catch(err => console.log(err))
-  
 }

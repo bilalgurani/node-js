@@ -4,17 +4,15 @@ const bodyParser = require("body-parser");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const authRoutes = require("./routes/auth");
 
-const Product = require("./models/product");
-const User = require("./models/user");
-const Cart = require("./models/cart")
-const CartItem = require("./models/cart-item");
-const Order = require("./models/order");
-const OrderItem = require("./models/order-item");
+// const User = require("./models/user");
 
 const errorController = require('./controllers/error');
 
-const sequelize = require("./util/database");
+const mongoConnect = require("./util/database").mongoConnect;
+
+const User = require("./models/user");
 
 const app = express();
 
@@ -24,28 +22,35 @@ app.set("views", "views");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// app.use((req, res, next) => {
-  
-// })
-
 app.use("/", (req, res, next) => {
   next();
 });
 
 app.use((req, res, next) => {
-  User.findByPk(1)
+  User.findById("6848290f87899ac7cf38b641")
   .then(user => {    
-    req.user = user;
+    req.user = new User(user.name, user.email, user.cart, user._id);
     next();
   })
   .catch(err => console.log(err));
-  
 })
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
+
+mongoConnect(() => {
+  app.listen(3000); 
+})
+
+/* 
+const Cart = require("./models/cart")
+const CartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const OrderItem = require("./models/order-item");
+const Product = require("./models/product");
 
 Product.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
 User.hasMany(Product);
@@ -56,8 +61,6 @@ Product.belongsToMany(Cart, { through: CartItem });
 Order.belongsTo(User);
 User.hasMany(Order);
 Order.belongsToMany(Product, { through: OrderItem })
-
-
 
 sequelize
 // .sync({ force: true })
@@ -80,5 +83,5 @@ sequelize
 
 .catch(err => console.log(err)
 )
-
+ */
 

@@ -1,29 +1,26 @@
 const Product = require('../models/product');
-const Order = require('../models/order');
 
 exports.getIndex = async (req, res, next) => {
-  try {
-    Product.findAll()
+    Product.fetchAll()
     .then(products => {
       res.render("shop/index", {
         prods: products,
         docTitle: "Shop", 
-        path: "/" 
+        path: "/",
+        isAuthenticated: req.isLoggedIn
       })
     })
     .catch(err => console.log(err))
-  } catch(error) {
-    next(error);
   }
-};
 
 exports.getProducts = async (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
   .then(products => {
     res.render("shop/product-list", {
       prods: products,
       docTitle: "All products ", 
-      path: "/products" 
+      path: "/products",
+      isAuthenticated: req.isLoggedIn
     });
   })
   .catch(err => console.log(err))
@@ -31,12 +28,13 @@ exports.getProducts = async (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const productId = req.params.productId;
-  Product.findByPk(productId)
+  Product.findById(productId)
   .then(product => {
     res.render("shop/product-details", {
       prods: product, 
       path: "/products", 
-      docTitle: product.title
+      docTitle: product.title,
+      isAuthenticated: req.isLoggedIn
     })
   })
   .catch(error => {
@@ -46,16 +44,13 @@ exports.getProduct = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user.getCart()
-  .then(cart => {
-    cart.getProducts()
-    .then(products => {
-      res.render("shop/cart", {
-        path: "/cart",
-        docTitle: "Your Cart",
-        products: products 
-      });
-    })
-    .catch(err => console.log(err))
+  .then(products => {
+    res.render("shop/cart", {
+      path: "/cart",
+      docTitle: "Your Cart",
+      products: products,
+      isAuthenticated: req.isLoggedIn
+    });
   })
   .catch(err => console.log(err))
   // const cartProductList = [];
@@ -83,6 +78,17 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const productId = req.body.productId;
+  
+  Product.findById(productId)
+  .then(product => {
+    return req.user.addToCart(product);
+  })
+  .then(result => {
+    res.redirect('/cart');
+    console.log(result);
+  })
+
+  /* 
   let fetchedCart;
   let newQuantity = 1;
   req.user.getCart()
@@ -111,32 +117,11 @@ exports.postCart = (req, res, next) => {
     res.redirect('/cart');
   })
   .catch(err => console.log(err)
-  )
+  ) */
 }
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart;
-  req.user
-  .getCart()
-  .then(cart => {
-    fetchedCart = cart;
-    return cart.getProducts()
-  })
-  .then(products => {
-    return req.user
-    .createOrder()
-    .then(order => {
-      return order.addProducts(
-        products.map(product => {
-        product.orderItem = { quantity: product.cartItem.quantity };
-        return product;
-      }))
-    })
-    .catch(err => console.log(err));
-  })
-  .then(result => {
-    return fetchedCart.setProducts(null);
-  })
+  req.user.addOrder()
   .then(result => {
     res.redirect("/orders")
   })
@@ -144,12 +129,13 @@ exports.postOrder = (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-  req.user.getOrders({include: ['products']})
+  req.user.getOrders()
   .then(orders => {
     res.render("shop/orders", {
       path: "/orders",
       docTitle: "Your Orders",
-      orders: orders
+      orders: orders,
+      isAuthenticated: req.isLoggedIn
     })
   })
   .catch(err => console.log(err))
@@ -165,17 +151,9 @@ exports.getCheckout = (req, res, next) => {
 
 exports.postDeleteInCarts = (req, res, next) => {
   const productId = req.body.productId;
-  req.user.getCart()
+  req.user.deleteItemFromCart(productId)
   .then(cart => {
-    cart.getProducts()
-    .then(products => {
-      const product = products[0];
-      return product.cartItem.destroy();
-    })
-    .then(result => {
-      res.redirect('/cart');
-    })
-    .catch(err => console.log(err))
+    res.redirect('/cart');
   })
   .catch(err => console.log(err));
 }
