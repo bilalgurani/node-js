@@ -7,7 +7,7 @@ exports.getIndex = async (req, res, next) => {
         prods: products,
         docTitle: "Shop", 
         path: "/",
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => console.log(err))
@@ -20,7 +20,7 @@ exports.getProducts = async (req, res, next) => {
       prods: products,
       docTitle: "All products ", 
       path: "/products",
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   })
   .catch(err => console.log(err))
@@ -34,7 +34,7 @@ exports.getProduct = (req, res, next) => {
       prods: product, 
       path: "/products", 
       docTitle: product.title,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     })
   })
   .catch(error => {
@@ -43,13 +43,17 @@ exports.getProduct = (req, res, next) => {
 }
 
 exports.getCart = (req, res, next) => {
+  console.log("req: ");
+  
+  console.log(req.user);
+  
   req.user.getCart()
   .then(products => {
     res.render("shop/cart", {
       path: "/cart",
       docTitle: "Your Cart",
       products: products,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   })
   .catch(err => console.log(err))
@@ -135,7 +139,7 @@ exports.getOrders = (req, res, next) => {
       path: "/orders",
       docTitle: "Your Orders",
       orders: orders,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     })
   })
   .catch(err => console.log(err))

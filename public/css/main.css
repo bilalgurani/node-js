@@ -38,17 +38,25 @@ body {
 .main-list__item {
   padding: 0 1rem;
 }
-.main-list__item a {
+.main-list__item a, 
+.main-list__item button {
+  font-size: inherit;
   text-decoration: none;
   color: #fff;
   transition: all 0.2s;
+  border: none;
+  background: none;
+cursor: pointer;
 }
 .main-list__item a:hover,
-.main-list__item a:active {
+.main-list__item button:hover,
+.main-list__item a:active,
+.main-list__item button:active {
   color: #764ba2;
   transition: all 0.2s;
 }
-.main-list__item a.active {
+.main-list__item a.active,
+.main-list__item button.active {
   font-weight: bold;
   padding: 0 0 0.4rem 0;
   border-bottom: 2px solid #764ba2;

@@ -103,8 +103,10 @@ class User {
   }
 
   static findById(id) {
+    console.log(id);
+    
     const db = getDb();
-    return db.collection('users').findOne({_id: mongodb.ObjectId.createFromHexString(id)})
+    return db.collection('users').findOne({_id: new mongodb.ObjectId(id)})
     .then(user => {
       return user;
     })

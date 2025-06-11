@@ -15,7 +15,9 @@
             <p class="price">$<%= p.price %></p>
             <div class="btn-grp">
             <a href="/products/<%= p._id %>" class="btn btn-outline">Details</a>
+            <% if (isAuthenticated) { %>
             <%- include("../includes/add-to-cart.ejs", { prods: p }) %>
+            <% } %>
           </div>
           </div>
         </div>

@@ -11,7 +11,9 @@
           </div>
           <p class="price">$<%= prods.price %></p>
           <p class="description"><%= prods.description %></p>
+          <% if (isAuthenticated) { %>
           <%- include("../includes/add-to-cart.ejs"), {prods: prods} %>
+          <% } %>
       </div>
     </div>
   </main>
