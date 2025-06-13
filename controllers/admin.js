@@ -12,9 +12,9 @@ exports.getAddProducts = (req, res, next) => {
   });
 };
 
-exports.postAddProducts = async (req, res, next) => {    
+exports.postAddProducts = async (req, res, next) => {      
   const {title, image_url: imageUrl, price, description } = req.body;
-  const product = new Product(title, price, description, imageUrl, null, req.user._id);
+  const product = new Product(title, price, description, imageUrl, null, req.session.user._id);
 
   product.save()
   .then(() => { 

@@ -6,8 +6,6 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
-// const User = require("./models/user");
-
 const session = require('express-session');
 
 const MongoDBStore = require('connect-mongodb-session')(session);
@@ -39,12 +37,13 @@ app.use("/", (req, res, next) => {
 app.use(session({secret: 'my secret', resave: false, saveUninitialized: false, store: store}));
 
 app.use((req, res, next) => {
+  
   if (!req.session.user) {
     return next();
   }
   User.findById(req.session.user._id)
-  .then(user => {    
-    req.user = new User(user.name, user.email, user.cart, user._id);
+  .then(user => {
+    req.user = new User(user.name, user.email, user.password, user.cart, user._id);
     next();
   })
   .catch(err => console.log(err));

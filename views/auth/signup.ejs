@@ -4,8 +4,12 @@
   <body>
     <%- include('../includes/navigation.ejs') %>
     <main class="main">
-      <form class="login-form" action="/login" method="post">
+      <form class="login-form" action="/signup" method="post">
         <div class="form">
+          <div class="form-div">
+            <label for="email">Name</label>
+            <input placeholder="Enter name" type="text" id="name" name="name" value="" />
+          </div>
           <div class="form-div">
             <label for="email">Email</label>
             <input placeholder="Enter email" type="text" id="email" name="email" value="" />
@@ -15,7 +19,7 @@
             <input placeholder="Enter password" type="password" id="password" name="password" />
           </div>
           
-          <button type="submit">Login</button>
+          <button type="submit">Sign up</button>
         </div>
       </form>
     </main>

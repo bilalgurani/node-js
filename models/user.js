@@ -2,9 +2,10 @@ const getDb = require("../util/database").getDb;
 const mongodb = require("mongodb");
 
 class User {
-  constructor(name, email, cart, id) {
+  constructor(name, email, password, cart, id) {
     this.name = name;
     this.email = email;
+    this.password = password;
     this.cart = cart;
     this._id = id;
   }
@@ -12,6 +13,15 @@ class User {
   save() {
     const db = getDb();
     return db.collection('users').insertOne(this);
+  }
+
+  static findOne(email) {
+    const db = getDb();
+    return db.collection('users').findOne({email: email})
+    .then(user => {
+      return user;
+    })
+    .catch(err => console.log(err))
   }
 
   addToCart(product) {
@@ -103,8 +113,6 @@ class User {
   }
 
   static findById(id) {
-    console.log(id);
-    
     const db = getDb();
     return db.collection('users').findOne({_id: new mongodb.ObjectId(id)})
     .then(user => {
@@ -129,8 +137,6 @@ const User = sequelize.define("users", {
   name: Sequelize.STRING,
   email: Sequelize.STRING,
 }, {schema: "shop"}) */
-
-
 
 /*
 
