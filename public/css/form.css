@@ -12,6 +12,9 @@
   max-width: 90%;
   margin: 0 auto;
   color: #fff;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 .form-div {
   margin-bottom: clamp(1.5rem, 3vw, 2rem);
@@ -83,4 +86,107 @@ button {
 
 button:hover {
   background-color: #e7ebff;
+}
+
+.error {
+  background: rgba(255, 82, 82, 0.12);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 82, 82, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.success {
+  background: rgba(72, 187, 120, 0.12);
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(72, 187, 120, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.message {
+  padding: clamp(1.2rem, 3vw, 1.5rem);
+  border-radius: 20px;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;           
+  animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: top center;  
+  display: flex; 
+  align-items: start;
+  gap: 1rem;
+  backdrop-filter: blur(20px);
+}
+.error-text p:first-child {
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.3rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.error-text p {
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.error::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+                rgba(255, 82, 82, 0.6) 0%, 
+                rgba(255, 154, 154, 0.8) 50%, 
+                rgba(255, 82, 82, 0.6) 100%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.error-icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  margin-top: 0.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.error-icon svg {
+  width: 30px;
+  height: 30px;
+  color: rgba(255, 154, 154, 0.9);
+  filter: drop-shadow(0 2px 4px rgba(255, 82, 82, 0.3));
+}
+
+.success::before {
+  background: linear-gradient(90deg, 
+      rgba(72, 187, 120, 0.6) 0%, 
+      rgba(144, 238, 144, 0.8) 50%, 
+      rgba(72, 187, 120, 0.6) 100%);
+}
+
+.success .error-icon svg {
+  color: rgba(144, 238, 144, 0.9);
+  filter: drop-shadow(0 2px 4px rgba(72, 187, 120, 0.3));
+}
+
+@keyframes slideIn {
+  0% {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.5);
+  }
+  100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+      opacity: 0.6;
+  }
+  50% {
+      opacity: 1;
+  }
 }

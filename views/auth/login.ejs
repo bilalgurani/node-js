@@ -6,6 +6,29 @@
     <main class="main">
       <form class="login-form" action="/login" method="post">
         <div class="form">
+          <% if (errorTitle && errorTitle.length > 0) { %>
+            <% if (errorTitle[0] === 'Account Created') { %>
+              <div class="message success">
+            <% } else { %>
+              <div class="message error">
+            <% } %>
+            <div class="error-icon">
+              <% if (errorTitle[0] === 'Account Created') { %>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              <% } else { %>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <% } %>
+            </div>
+              <div class="error-text">
+                <p><%= errorTitle[0] %></p>
+                <p><%= errorMessage[0] %></p>
+              </div>
+            </div>
+          <% } %>
           <div class="form-div">
             <label for="email">Email</label>
             <input placeholder="Enter email" type="text" id="email" name="email" value="" />
@@ -14,7 +37,7 @@
             <label for="password">Password</label>
             <input placeholder="Enter password" type="password" id="password" name="password" />
           </div>
-          
+          <input type="hidden" value="<%= csrfToken %>" name="_csrf">
           <button type="submit">Login</button>
         </div>
       </form>
