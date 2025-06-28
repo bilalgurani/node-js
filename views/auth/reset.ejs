@@ -4,16 +4,16 @@
   <body>
     <%- include('../includes/navigation.ejs') %>
     <main class="main">
-      <form class="login-form" action="/login" method="post">
+      <form class="login-form" action="/reset" method="post">
         <div class="form">
           <% if (errorTitle && errorTitle.length > 0) { %>
-            <% if (errorTitle[0] === 'Account Created' || errorTitle[0] === 'Reset Email Sent' || errorTitle[0] === 'Password Reset Success') { %>
+            <% if (errorTitle[0] === 'Reset Email Sent') { %>
               <div class="message success">
             <% } else { %>
               <div class="message error">
             <% } %>
             <div class="error-icon">
-              <% if (errorTitle[0] === 'Account Created' || errorTitle[0] === 'Reset Email Sent' || errorTitle[0] === 'Password Reset Success') { %>
+              <% if (errorTitle[0] === 'Reset Email Sent') { %>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -33,18 +33,9 @@
             <label for="email">Email</label>
             <input placeholder="Enter email" type="text" id="email" name="email" value="" />
           </div>
-          <div class="form-div">
-            <label for="password">Password</label>
-            <input placeholder="Enter password" type="password" id="password" name="password" />
-          </div>
           <input type="hidden" value="<%= csrfToken %>" name="_csrf">
-          <button type="submit">Login</button>
-          <div class="form-div">
-            <a href="/reset">Reset password</a>
-          </div>
+          <button type="submit">Reset password</button>
         </div>
-      
       </form>
-      
     </main>
 <%- include('../includes/end.ejs') %>

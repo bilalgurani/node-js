@@ -1,8 +1,10 @@
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const sendgridtransport = require('nodemailer-sendgrid-transport');
 
 const User = require("../models/user");
+
+const mongodb = require("mongodb");
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -24,7 +26,8 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     isAuthenticated: false,
     errorTitle: errorTitle,
-    errorMessage: errorMessage
+    errorMessage: errorMessage,
+    userName: req?.user?.name
   });
 }
 exports.getSignUp = (req, res, next) => {
@@ -37,7 +40,8 @@ exports.getSignUp = (req, res, next) => {
     path: "/signup",
     isAuthenticated: false,
     errorTitle: errorTitle,
-    errorMessage: errorMessage
+    errorMessage: errorMessage,
+    userName: req.user.name
   })
 }
 
@@ -101,7 +105,7 @@ exports.postSignUp = (req, res, next) => {
     return bcrypt
     .hash(password, 12)
     .then(hashedPass => {
-      const user = new User(name, email, hashedPass, {items: []})
+      const user = new User(name, email, hashedPass, undefined, undefined, {items: []}, undefined)
       return user.save();
     })
     .then(result => {
@@ -522,4 +526,161 @@ function getEmailTemplate(userData) {
             </html>
   
   `
+}
+
+exports.getReset = (req, res, next) => {
+  const errorTitle = req.flash('errorTitle');
+  const errorMessage = req.flash('errorMessage');
+
+  res.render("auth/reset", {
+    title: "Reset page",
+    docTitle: "Reset",
+    path: "/reset",
+    isAuthenticated: false,
+    errorTitle: errorTitle,
+    errorMessage: errorMessage,
+    userName: req.user.name
+  });
+}
+
+exports.postReset = (req, res, next) => {
+  const email = req.body.email;
+
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
+      console.log(err);
+      req.flash('errorTitle', 'Server Error');
+      req.flash('errorMessage', 'Something went wrong. Please try again.');
+      return res.redirect("/reset");
+    }
+
+    const token = buffer.toString('hex');
+    const tokenExpiry = new Date(Date.now() + 3600000);
+    // Convert to local time IST
+    const localAsDate = new Date(tokenExpiry.getTime() - tokenExpiry.getTimezoneOffset() * 60000);
+
+    User.findOne(email)
+    .then(user => {
+      if (!user) {
+        req.flash('errorTitle', 'Invalid User')
+        req.flash('errorMessage', 'No account found with that email address.')
+        return res.redirect('/reset')
+      }
+      return User.setTokenWithExpiry(email, token, 1)
+      .then(result => {
+        if (!result) return;
+        return transporter.sendMail({
+          to: email,
+          from: 'user.bkdesign@gmail.com',
+          subject: 'Password Reset',
+          html: 
+          `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Password Reset Request</h2>
+            <p>You requested a password reset for your BK Design account.</p>
+            <p>Click the button below to reset your password:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="http://localhost:3000/reset/${token}" 
+                 style="background-color: #667eea; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                Reset Password
+              </a>
+            </div>
+            <p>Or copy and paste this link in your browser:</p>
+            <p style="word-break: break-all; color: #666;">
+              http://localhost:3000/reset/${token}
+            </p>
+            <p style="color: #666; font-size: 14px;">
+              This link will expire in 1 hour. If you didn't request this reset, 
+              please ignore this email.
+            </p>
+          </div>
+          `,
+        });
+      })
+      .then(() => {
+        req.flash('errorTitle', 'Reset Email Sent');
+        req.flash('errorMessage', 'Password reset instructions have been sent to your email.');
+        res.redirect('/login');
+      })
+      .catch(err => {
+        console.log(err);
+        req.flash('errorTitle', 'Server Error');
+        req.flash('errorMessage', 'Something went wrong. Please try again.');
+        res.redirect('/reset');
+      })
+    });
+  });
+}
+
+exports.getNewPassword = (req, res, next) => {
+  const token = req.params.token;
+  User.findByTokenWithExpiry(token)
+  .then(user => {    
+    const errorTitle = req.flash('errorTitle');
+    const errorMessage = req.flash('errorMessage');
+
+    res.render("auth/new-password", {
+      title: "New Password page",
+      docTitle: "New Password",
+      path: "/new-password",
+      isAuthenticated: false,
+      errorTitle: errorTitle,
+      errorMessage: errorMessage,
+      userId: user._id.toString(),
+      passwordToken: token,
+      userName: req.user.name
+    });
+  })
+  .catch(err => {
+    console.log(err);
+    req.flash('errorTitle', 'Server Error');
+    req.flash('errorMessage', 'Something went wrong. Please try again.');
+    res.redirect('/');
+  })  
+}
+
+exports.postNewPassword = (req, res, next) => {
+  const newPassword = req.body.password;
+  const userId = req.body.userId;
+  const passwordToken = req.body.passwordToken;
+  const tokenExpiry = new Date();
+  let resetUser;
+  User.findOneWithTokenAndUserId(passwordToken, tokenExpiry, userId)
+  .then(user => {
+    console.log("----USER-----");
+    
+    console.log(user);
+    
+    resetUser = user;
+    return bcrypt.hash(newPassword, 12)
+  })
+  .then(hashedPass => {    
+    const db = require("../util/database").getDb();
+    console.log("USERID: ");
+    
+    console.log(userId);
+    
+    return db.collection('users').updateOne(
+      {_id: new mongodb.ObjectId(userId)},
+      {
+      $set: {
+        password: hashedPass,
+        token: undefined,
+        tokenExpiry: undefined
+      }
+    }
+    )
+  })
+  .then(user => {    
+    req.flash('errorTitle', 'Password Reset Success');
+    req.flash('errorMessage', 'Password has been reset successfully!');
+    res.redirect('/login')
+  })
+  .catch(err => {
+    console.log(err);
+    req.flash('errorTitle', 'Server Error');
+    req.flash('errorMessage', 'Something went wrong. Please try again.');
+    res.redirect('/reset');
+  })
 }

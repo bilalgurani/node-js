@@ -24,6 +24,9 @@
     </ul>
     
     <ul class="main-list">
+      <% if (userName) { %>
+        <p class="user-name"><%= userName %></p>
+        <% } %>
       <% if (!isAuthenticated) { %>
       <li class="main-list__item">
         <a class="<%= path === '/login' ? 'active' : ''%>" href="/login">Login</a>

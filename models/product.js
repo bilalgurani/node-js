@@ -29,6 +29,17 @@ class Product {
       .catch(err => console.log(err))
   }
 
+  static fetchAllByUserId(userId) {
+    const db = getDb();
+    return db.collection('products').find({userId: userId}).toArray()
+    .then(products => {
+      console.log(products);
+      
+      return products;
+    })
+    .catch(err => console.log(err))
+  }
+
   static fetchAll() {
     const db = getDb();
     return db.collection('products').find().toArray()
@@ -48,9 +59,11 @@ class Product {
     .catch(err => console.log(err))
   }
 
-  static deleteById(id) {
+  static deleteById(id, userId) {
     const db = getDb();
-    return db.collection('products').deleteOne({_id: mongodb.ObjectId.createFromHexString(id)})
+    return db.collection('products').deleteOne(
+      {_id: mongodb.ObjectId.createFromHexString(id), userId: userId}
+    )
     .then(res => {
       console.log("DELETED!"); 
     })

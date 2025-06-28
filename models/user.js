@@ -3,10 +3,12 @@ const mongodb = require("mongodb");
 const { use } = require("../routes/admin");
 
 class User {
-  constructor(name, email, password, cart, id) {
+  constructor(name, email, password, token, tokenExpiry, cart, id) {
     this.name = name;
     this.email = email;
     this.password = password;
+    this.token = token;
+    this.tokenExpiry = tokenExpiry;
     this.cart = cart;
     this._id = id;
   }
@@ -23,6 +25,62 @@ class User {
       return user;
     })
     .catch(err => console.log(err))
+  }
+
+  static setTokenWithExpiry(email, token, expiryHours = 1) {
+    const db = getDb();
+    const currentTime = new Date(Date.now() + (expiryHours * 3600000));
+    const tokenExpiry = new Date(currentTime.getTime() - currentTime.getTimezoneOffset() * 60000);
+    
+    return db.collection('users').updateOne(
+      { email: email },
+      {
+        $set: { 
+          token: token,
+          tokenExpiry: tokenExpiry
+        }
+      }
+    );
+  }
+
+  static findOneWithTokenAndUserId(token, tokenExpiry, userId) {
+    const db = getDb();
+    const currentTime = tokenExpiry;
+    const localDateTime = new Date(currentTime.getTime() - currentTime.getTimezoneOffset() * 60000);
+    
+    return db.collection('users').findOne({
+      token: token,
+      tokenExpiry: {$gt: localDateTime},
+      _id: new mongodb.ObjectId(userId)
+    })
+  }
+
+
+  static findByTokenWithExpiry(token) {
+    const db = getDb();
+    const currentTime = new Date();
+    const localDateTime = new Date(currentTime.getTime() - currentTime.getTimezoneOffset() * 60000);
+    
+    return db.collection('users').findOne({ token: token })
+    .then(userAnyToken => {
+      if (userAnyToken) {
+        return db.collection('users').findOne({
+          token: token,
+          tokenExpiry: {$gt: localDateTime}
+        });
+      }
+    })
+    .then(user => {
+      console.log('User found with valid token:', user ? 'YES' : 'NO');
+      if (user) {
+        console.log('Valid user email:', user.email);
+      }
+      return user;
+    })
+    .catch(err => {
+      console.log('Error in findByTokenWithExpiry:', err);
+      return null;
+    });
   }
 
   addToCart(product) {
@@ -116,11 +174,7 @@ class User {
   static findById(id) {
     const db = getDb();
     return db.collection('users').findOne({_id: new mongodb.ObjectId(id)})
-    .then(user => {
-      console.log("USER: ");
-      
-      console.log(user);
-      
+    .then(user => {      
       return user;
     })
     .catch(err => console.log(err));

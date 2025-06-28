@@ -8,7 +8,8 @@ exports.getAddProducts = (req, res, next) => {
     docTitle: "Product page",
     path: "/admin/add-product",
     edit: false,
-    isAuthenticated: req.session.isLoggedIn
+    isAuthenticated: req.session.isLoggedIn,
+    userName: req.user.name
   });
 };
 
@@ -31,10 +32,18 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedDes = req.body.description;
 
-  const product = new Product(updatedTitle, updatedPrice, updatedDes, updatedImageUrl, 
-    mongodb.ObjectId.createFromHexString(id));
-  product.save()
-  .then(res.redirect("/admin/products"))
+  Product.findById(id)
+  .then(prod => {
+    
+    if (prod.userId.toString() !== req.user._id.toString()) {      
+      return res.redirect('/')
+    }
+    const product = new Product(updatedTitle, updatedPrice, updatedDes, updatedImageUrl, 
+      mongodb.ObjectId.createFromHexString(id), req.user._id);      
+    return product.save()
+    .then(res.redirect("/admin/products"))
+  })
+  
   .catch(err => console.log(err));
 };
 
@@ -53,7 +62,8 @@ exports.getEditProducts = (req, res, next) => {
       path: "/admin/edit-product",
       edit: editMode,
       product: product,
-      isAuthenticated: req.session.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name
     });
   })
   .catch(error => {
@@ -62,13 +72,15 @@ exports.getEditProducts = (req, res, next) => {
 };
 
 exports.getAdminProducts = async (req, res, next) => {
+  // Product.fetchAllByUserId(req.user._id)
   Product.fetchAll()
   .then(products => {
     res.render("admin/products", {
       prods: products,
       docTitle: "Admin Products", 
       path: "/admin/products",
-      isAuthenticated: req.session.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name
     });
   })
   .catch(err => console.log(err));
@@ -76,7 +88,7 @@ exports.getAdminProducts = async (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.deleteById(productId)
+  Product.deleteById(productId, req.user._id)
   .then(() => {
     res.redirect("/admin/products");
   })

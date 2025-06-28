@@ -10,4 +10,10 @@ routes.post("/logout", authController.postLogout);
 routes.get("/signup", authController.getSignUp);
 routes.post("/signup", authController.postSignUp)
 
+routes.get("/reset", authController.getReset);
+routes.post("/reset", authController.postReset);
+
+routes.get('/reset/:token', authController.getNewPassword);
+routes.post('/new-password', authController.postNewPassword);
+
 module.exports = routes;

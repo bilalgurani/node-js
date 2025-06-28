@@ -187,3 +187,9 @@ transition: transform 0.3s ease, box-shadow 0.3s ease;
 .btn-edit {
   background-color: yellowgreen;
 }
+.user-name {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background-color: #425675 ;
+}

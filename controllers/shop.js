@@ -1,16 +1,17 @@
 const Product = require('../models/product');
 
-exports.getIndex = async (req, res, next) => {
-    Product.fetchAll()
-    .then(products => {
-      res.render("shop/index", {
-        prods: products,
-        docTitle: "Shop", 
-        path: "/"
-      })
+exports.getIndex = async (req, res, next) => {    
+  Product.fetchAll()
+  .then(products => {
+    res.render("shop/index", {
+      prods: products,
+      docTitle: "Shop", 
+      path: "/",
+      userName: req?.user?.name
     })
-    .catch(err => console.log(err))
-  }
+  })
+  .catch(err => console.log(err))
+}
 
 exports.getProducts = async (req, res, next) => {
   Product.fetchAll()
@@ -19,7 +20,8 @@ exports.getProducts = async (req, res, next) => {
       prods: products,
       docTitle: "All products ", 
       path: "/products",
-      isAuthenticated: req.session.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name
     });
   })
   .catch(err => console.log(err))
@@ -33,7 +35,8 @@ exports.getProduct = (req, res, next) => {
       prods: product, 
       path: "/products", 
       docTitle: product.title,
-      isAuthenticated: req.session.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name
     })
   })
   .catch(error => {
@@ -52,7 +55,8 @@ exports.getCart = (req, res, next) => {
       path: "/cart",
       docTitle: "Your Cart",
       products: products,
-      isAuthenticated: req.session.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name
     });
   })
   .catch(err => console.log(err))
@@ -142,7 +146,8 @@ exports.getOrders = (req, res, next) => {
       path: "/orders",
       docTitle: "Your Orders",
       orders: orders,
-      isAuthenticated: req.session.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name
     })
   })
   .catch(err => console.log(err))
