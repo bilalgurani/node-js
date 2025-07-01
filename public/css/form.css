@@ -171,6 +171,10 @@ button:hover {
   filter: drop-shadow(0 2px 4px rgba(72, 187, 120, 0.3));
 }
 
+.invalid {
+  box-shadow: 0 0 0 5px rgba(255, 82, 82, 0.6) !important;
+}
+
 @keyframes slideIn {
   0% {
       opacity: 0;

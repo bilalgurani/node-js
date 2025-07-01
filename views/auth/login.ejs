@@ -31,11 +31,11 @@
           <% } %>
           <div class="form-div">
             <label for="email">Email</label>
-            <input placeholder="Enter email" type="text" id="email" name="email" value="" />
+            <input class="<%= validationError.find(e => e.path === 'email') ? 'invalid' : ''%>"  placeholder="Enter email" type="text" id="email" name="email" value="<%= oldInput.email %>" />
           </div>
           <div class="form-div">
             <label for="password">Password</label>
-            <input placeholder="Enter password" type="password" id="password" name="password" />
+            <input class="<%= validationError.find(e => e.path === 'password') ? 'invalid' : ''%>"  placeholder="Enter password" type="password" id="password" name="password" value="<%= oldInput.password %>"/>
           </div>
           <input type="hidden" value="<%= csrfToken %>" name="_csrf">
           <button type="submit">Login</button>

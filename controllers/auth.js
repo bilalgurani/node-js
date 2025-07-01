@@ -1,10 +1,12 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const { validationResult } = require('express-validator')
 
 const User = require("../models/user");
 
 const mongodb = require("mongodb");
+const { log } = require('console');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -27,7 +29,12 @@ exports.getLogin = (req, res, next) => {
     isAuthenticated: false,
     errorTitle: errorTitle,
     errorMessage: errorMessage,
-    userName: req?.user?.name
+    userName: req?.user?.name,
+    oldInput: {
+      email: "",
+      password: ""
+    },
+    validationError: []
   });
 }
 exports.getSignUp = (req, res, next) => {
@@ -41,19 +48,57 @@ exports.getSignUp = (req, res, next) => {
     isAuthenticated: false,
     errorTitle: errorTitle,
     errorMessage: errorMessage,
-    userName: req.user.name
+    userName: req.user?.name,
+    oldInput: {
+      name: "",
+      email: "",
+      password: ""
+    },
+    validationError: []
   })
 }
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    const firstError = error.array()[0]; 
+    return res.status(422)
+    .render("auth/login", {
+      title: "Login page",
+    docTitle: "Login",
+    path: "/login",
+    isAuthenticated: false,
+    errorTitle: errorTitle,
+    errorMessage: [firstError.msg],
+    userName: req?.user?.name,
+    oldInput: {
+      email: email,
+      password: password
+    },
+    validationError: error.array()
+    });
+  }
   User.findOne(email)
   .then(user => { 
     if (!user) {           
-      req.flash('errorTitle', 'Invalid User')
-      req.flash('errorMessage', 'The username or password you entered is incorrect. Please check your credentials and try again.')
-      return res.redirect("/login");
+      return res.status(422)
+    .render("auth/login", {
+      title: "Login page",
+    docTitle: "Login",
+    path: "/login",
+    isAuthenticated: false,
+    errorTitle: ['Invalid User'],
+    errorMessage: ['The username or password you entered is incorrect. Please check your credentials and try again.'],
+    userName: req?.user?.name,
+    oldInput: {
+      email: email,
+      password: password
+    },
+    validationError: error.array()
+    });
     }
     bcrypt.compare(password, user.password)
     .then(doMatch => {
@@ -95,14 +140,28 @@ exports.postSignUp = (req, res, next) => {
     return res.redirect("/signup");
   }
 
-  User.findOne(email)
-  .then(userDoc => {
-    if (userDoc) {
-      req.flash('errorTitle', 'Email Already Exists')
-      req.flash('errorMessage', 'An account with this email already exists. Please use a different email or try logging in.')
-      return res.redirect("/signup")
-    }
-    return bcrypt
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    const firstError = error.array()[0]; 
+    console.log(error.array());
+    return res.status(422)
+    .render("auth/signup", {
+      title: "Signup page",
+      docTitle: "Signup",
+      path: "/signup",
+      isAuthenticated: false,
+      errorTitle: ['Validation Error'],
+      errorMessage: [firstError.msg],
+      userName: req.user?.name,
+      oldInput: {
+        name: name,
+        email: email,
+        password: password
+      },
+      validationError: error.array()
+    });
+  }
+   bcrypt
     .hash(password, 12)
     .then(hashedPass => {
       const user = new User(name, email, hashedPass, undefined, undefined, {items: []}, undefined)
@@ -139,15 +198,8 @@ exports.postSignUp = (req, res, next) => {
       req.flash('errorTitle', 'Account Created');
       req.flash('errorMessage', 'Your account has been created successfully! Please log in.');
       res.redirect("/login");
-  })
-  .catch(err => {
-    console.log(err);
-    req.flash('errorTitle', 'Server Error');
-    req.flash('errorMessage', 'Something went wrong. Please try again.');
-    res.redirect("/signup");
   });
-  }
-)}
+}
 
 
 exports.postLogout = (req, res, next) => {
