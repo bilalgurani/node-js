@@ -6,14 +6,20 @@ const User = require("../models/user");
 
 
 routes.get("/login", authController.getLogin);
-routes.post("/login", authController.postLogin);
+routes.post("/login", 
+  [
+    check('email').isEmail().withMessage('Please enter a valid email!').normalizeEmail(),
+    body('password', 'Please enter password with only numbers and text at least 5 characters.')
+    .isLength({min: 5}).trim()
+  ], 
+  authController.postLogin);
 
 routes.post("/logout", authController.postLogout);
 
 routes.get("/signup", authController.getSignUp);
 routes.post("/signup", 
   [ 
-    check('email').isEmail().withMessage('Please enter a valid email!')
+    check('email').isEmail().withMessage('Please enter a valid email!').normalizeEmail()
     .custom((value, { req }) => {
       return User.findOne(value)
       .then(userDoc => {
@@ -23,8 +29,7 @@ routes.post("/signup",
       })
     }),
     body('password', 'Please enter password with only numbers and text at least 5 characters.')
-    .isLength({min: 5}),
-    body('')
+    .isLength({min: 5}).trim()
   ]
  , authController.postSignUp)
 

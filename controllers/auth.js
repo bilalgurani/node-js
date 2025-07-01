@@ -64,41 +64,43 @@ exports.postLogin = (req, res, next) => {
 
   const error = validationResult(req);
   if (!error.isEmpty()) {
+    console.log(error.array());
+    
     const firstError = error.array()[0]; 
     return res.status(422)
     .render("auth/login", {
       title: "Login page",
-    docTitle: "Login",
-    path: "/login",
-    isAuthenticated: false,
-    errorTitle: errorTitle,
-    errorMessage: [firstError.msg],
-    userName: req?.user?.name,
-    oldInput: {
-      email: email,
-      password: password
-    },
-    validationError: error.array()
+      docTitle: "Login",
+      path: "/login",
+      isAuthenticated: false,
+      errorTitle: ['Invalid Credentials'],
+      errorMessage: [firstError.msg],
+      userName: req?.user?.name,
+      oldInput: {
+        email: email,
+        password: password
+      },
+      validationError: error.array()
     });
   }
   User.findOne(email)
   .then(user => { 
     if (!user) {           
       return res.status(422)
-    .render("auth/login", {
-      title: "Login page",
-    docTitle: "Login",
-    path: "/login",
-    isAuthenticated: false,
-    errorTitle: ['Invalid User'],
-    errorMessage: ['The username or password you entered is incorrect. Please check your credentials and try again.'],
-    userName: req?.user?.name,
-    oldInput: {
-      email: email,
-      password: password
-    },
-    validationError: error.array()
-    });
+      .render("auth/login", {
+        title: "Login page",
+        docTitle: "Login",
+        path: "/login",
+        isAuthenticated: false,
+        errorTitle: ['Invalid User'],
+        errorMessage: ['The username or password you entered is incorrect. Please check your credentials and try again.'],
+        userName: req?.user?.name,
+        oldInput: {
+          email: email,
+          password: password
+        },
+        validationError: error.array()
+      });
     }
     bcrypt.compare(password, user.password)
     .then(doMatch => {
@@ -106,7 +108,21 @@ exports.postLogin = (req, res, next) => {
           req.session.isLoggedIn = true;
           req.session.user = user;
           return req.session.save(() => {
-            res.redirect("/");
+            return res.status(422)
+      .render("auth/login", {
+        title: "Login page",
+        docTitle: "Login",
+        path: "/login",
+        isAuthenticated: false,
+        errorTitle: ['Invalid User'],
+        errorMessage: ['The username or password you entered is incorrect. Please check your credentials and try again.'],
+        userName: req?.user?.name,
+        oldInput: {
+          email: email,
+          password: password
+        },
+        validationError: error.array()
+      });
         });
       } else {
         req.flash('errorTitle', 'Invalid Credentials')
@@ -591,7 +607,7 @@ exports.getReset = (req, res, next) => {
     isAuthenticated: false,
     errorTitle: errorTitle,
     errorMessage: errorMessage,
-    userName: req.user.name
+    userName: req.user?.name
   });
 }
 
