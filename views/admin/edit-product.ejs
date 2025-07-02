@@ -4,8 +4,31 @@
   <body>
     <%- include('../includes/navigation.ejs') %>
     <main class="main">
-      <form action="/admin/<% if (edit) { %>edit-product<% } else { %>add-product<% } %> " method="post">
+      <form action="/admin/<% if (edit) { %>edit-product<% } else { %>add-product<% } %> " method="post" enctype="multipart/form-data">
         <div class="form">
+          <% if (errorTitle && errorTitle.length > 0) { %>
+            <% if (errorTitle[0] === 'Account Created' || errorTitle[0] === 'Reset Email Sent' || errorTitle[0] === 'Password Reset Success') { %>
+              <div class="message success">
+            <% } else { %>
+              <div class="message error">
+            <% } %>
+            <div class="error-icon">
+              <% if (errorTitle[0] === 'Account Created' || errorTitle[0] === 'Reset Email Sent' || errorTitle[0] === 'Password Reset Success') { %>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              <% } else { %>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <% } %>
+            </div>
+              <div class="error-text">
+                <p><%= errorTitle[0] %></p>
+                <p><%= errorMessage[0] %></p>
+              </div>
+            </div>
+          <% } %>
           <div class="form-div">
             <label for="title">Title</label>
             <input placeholder="Enter product title" type="text" id="title" name="title" value="<% if (edit) { %><%=product.title%><% } %>" />

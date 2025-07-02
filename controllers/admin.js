@@ -1,3 +1,4 @@
+const { ValidationError } = require('sequelize');
 const Product = require('../models/product');
 const mongodb = require("mongodb");
 
@@ -9,14 +10,48 @@ exports.getAddProducts = (req, res, next) => {
     path: "/admin/add-product",
     edit: false,
     isAuthenticated: req.session.isLoggedIn,
-    userName: req.user.name
+    userName: req.user.name,
+    oldInput: {
+      title: '',
+      price: '',
+      description: ''
+    },
+    errorTitle: [],
+    errorMessage: [],
+    ValidationError: []
   });
 };
 
 exports.postAddProducts = async (req, res, next) => {      
-  const {title, image_url: imageUrl, price, description } = req.body;
-  const product = new Product(title, price, description, imageUrl, null, req.session.user._id);
+  // const {title, image_url: imageUrl, price, description } = req.body;
+  const title = req.body.title;
+  const image = req.file;
+  const price = req.body.price;
+  const description = req.body.description;
 
+  const imageUrl = image.path;
+
+  // const {title, image: imageUrl, price, description } = req.body;
+  const product = new Product(title, price, description, imageUrl, null, req.session.user._id);
+  if (!image) {
+    return res.status(422).render("admin/edit-product", {
+      title: prodTitle,
+      docTitle: "Product page",
+      path: "/admin/add-product",
+      edit: false,
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name,
+      oldInput: {
+        title: title,
+        price: price,
+        description: description
+      },
+      errorTitle: ['Invalid file'],
+      errorMessage: ['Please upload only png/jpg/jpeg.'],
+      ValidationError: []
+    });
+  }
+  
   product.save()
   .then(() => { 
     res.redirect("/admin/products");
@@ -28,10 +63,14 @@ exports.postAddProducts = async (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const id = req.body.productId; // get these from ejs file and in name tag
   const updatedTitle = req.body.title;
-  const updatedImageUrl = req.body.image_url;
+  const image = req.file;
   const updatedPrice = req.body.price;
   const updatedDes = req.body.description;
 
+  let updatedImageUrl;
+  if (image) {
+    updatedImageUrl = image.path;
+  }
   Product.findById(id)
   .then(prod => {
     
@@ -63,7 +102,15 @@ exports.getEditProducts = (req, res, next) => {
       edit: editMode,
       product: product,
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name
+      userName: req.user.name,
+      oldInput: {
+        title: '',
+        price: '',
+        description: ''
+      },
+      errorTitle: [],
+      errorMessage: [],
+      ValidationError: []
     });
   })
   .catch(error => {
