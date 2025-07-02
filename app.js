@@ -47,10 +47,15 @@ app.use((req, res, next) => {
   }
   User.findById(req.session.user._id)
   .then(user => {
+    if (!user) {
+      return next();
+    }
     req.user = new User(user.name, user.email, user.password, undefined, undefined, user.cart, user._id);
     next();
   })
-  .catch(err => console.log(err));
+  .catch(err => {
+    throw new Error(err);
+  });
 })
 
 app.use(csrfProtection);
