@@ -107,8 +107,11 @@ exports.postLogin = (req, res, next) => {
       if (doMatch) {
           req.session.isLoggedIn = true;
           req.session.user = user;
-          return req.session.save(() => {
-            return res.status(422)
+          return req.session.save(err => {
+            res.redirect("/")
+          });
+      }
+      return res.status(422)
       .render("auth/login", {
         title: "Login page",
         docTitle: "Login",
@@ -123,12 +126,6 @@ exports.postLogin = (req, res, next) => {
         },
         validationError: error.array()
       });
-        });
-      } else {
-        req.flash('errorTitle', 'Invalid Credentials')
-        req.flash('errorMessage', 'The username or password you entered is incorrect.')
-        res.redirect("/login");
-      }
     }).catch(err => { 
       console.log(err);
       req.flash('errorTitle', 'Server Error')

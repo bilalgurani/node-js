@@ -10,9 +10,13 @@
             <label for="title">Title</label>
             <input placeholder="Enter product title" type="text" id="title" name="title" value="<% if (edit) { %><%=product.title%><% } %>" />
           </div>
-          <div class="form-div">
+          <!-- <div class="form-div">
             <label for="  ">Image URL</label>
             <input placeholder="Enter Image URL" type="text" id="imageUrl" name="image_url" value="<% if (edit) { %><%=product.imageUrl%><% } %>" />
+          </div> -->
+          <div class="form-div">
+            <label for="image">Image</label>
+            <input placeholder="Enter Image URL" type="file" id="image" name="image" value="<% if (edit) { %><%=product.imageUrl%><% } %>" />
           </div>
           <div class="form-div">
             <label for="price">Price</label>
