@@ -1,7 +1,10 @@
 const Product = require('../models/product');
 
-exports.getIndex = async (req, res, next) => {    
-  Product.fetchAll()
+const ITEMS_PER_PAGE = 2;
+
+exports.getIndex = async (req, res, next) => {
+  const page = req.query.page;
+  Product.fetchAll(page, ITEMS_PER_PAGE)
   .then(products => {
     res.render("shop/index", {
       prods: products,
@@ -14,7 +17,8 @@ exports.getIndex = async (req, res, next) => {
 }
 
 exports.getProducts = async (req, res, next) => {
-  Product.fetchAll()
+  const page = req.query.page;
+  Product.fetchAll(page, ITEMS_PER_PAGE)
   .then(products => {
     res.render("shop/product-list", {
       prods: products,

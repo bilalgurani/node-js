@@ -40,9 +40,12 @@ class Product {
     .catch(err => console.log(err))
   }
 
-  static fetchAll() {
+  static fetchAll(page, itemsPerPage) {
     const db = getDb();
-    return db.collection('products').find().toArray()
+    return db.collection('products').find()
+    .skip((page - 1) * itemsPerPage)
+    .limit(itemsPerPage)
+    .toArray()
     .then(products => {
       return products;
     })

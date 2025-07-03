@@ -2,6 +2,8 @@ const { ValidationError } = require('sequelize');
 const Product = require('../models/product');
 const mongodb = require("mongodb");
 
+const ITEMS_PER_PAGE = 2;
+
 exports.getAddProducts = (req, res, next) => {
   const prodTitle = "Add Product";
   res.render("admin/edit-product", {
@@ -120,7 +122,8 @@ exports.getEditProducts = (req, res, next) => {
 
 exports.getAdminProducts = async (req, res, next) => {
   // Product.fetchAllByUserId(req.user._id)
-  Product.fetchAll()
+  const page = req.query.page;
+  Product.fetchAll(page, ITEMS_PER_PAGE)
   .then(products => {
     res.render("admin/products", {
       prods: products,

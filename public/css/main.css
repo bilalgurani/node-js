@@ -193,3 +193,29 @@ transition: transform 0.3s ease, box-shadow 0.3s ease;
   border-radius: 5px;
   background-color: #425675 ;
 }
+.pagination-container {
+  text-align: center;
+  margin-top: 5rem;
+}
+.page-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+.count {
+  padding: .6rem;
+  background-color: #667eea;
+  border: 1px solid;
+  border-radius: 16px;
+  font-size: 1.6rem;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  color: white;
+  transition: all .2s ease;
+}
+.count:hover,
+.count:active {
+  background-color: #425675;
+}
