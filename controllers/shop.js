@@ -3,32 +3,74 @@ const Product = require('../models/product');
 const ITEMS_PER_PAGE = 2;
 
 exports.getIndex = async (req, res, next) => {
-  const page = req.query.page;
-  Product.fetchAll(page, ITEMS_PER_PAGE)
-  .then(products => {
+  const page = +req.query.page || 1;
+  Promise.all([
+    Product.fetchAll(page, ITEMS_PER_PAGE),
+    Product.getTotalCount()
+  ])
+  .then(([products, totalProducts]) => {   
+    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
+
+    let startPage, endPage;
+    if (page <= 2) {
+      // Show pages 1-5 when current page is 1, 2, or 3
+      startPage = 1;
+      endPage = Math.min(3, totalPages);
+    } else if (page >= totalPages - 1) {
+      // Show last 5 pages when near the end
+      startPage = Math.max(1, totalPages - 2);
+      endPage = totalPages;
+    } else {
+      // Show current page in middle with 2 on each side
+      startPage = page - 1;
+      endPage = page + 1;
+    }
+
     res.render("shop/index", {
       prods: products,
       docTitle: "Shop", 
       path: "/",
-      userName: req?.user?.name
+      userName: req?.user?.name,
+      currentPage: page,
+      startPage: startPage,
+      endPage: endPage,
+      totalPages: totalPages,
+      totalProducts: totalProducts
     })
   })
   .catch(err => console.log(err))
 }
 
 exports.getProducts = async (req, res, next) => {
-  const page = req.query.page;
-  Product.fetchAll(page, ITEMS_PER_PAGE)
-  .then(products => {
+  const page = +req.query.page || 1;
+  Promise.all([
+    Product.fetchAll(page, ITEMS_PER_PAGE),
+    Product.getTotalCount()
+  ])
+  .then(([products, totalProducts]) => {
+    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
     res.render("shop/product-list", {
       prods: products,
       docTitle: "All products ", 
       path: "/products",
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name
+      userName: req.user.name,
+      currentPage: page,
+      hasNextPage: hasNextPage,
+      hasPreviousPage: hasPreviousPage,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: totalPages,
+      totalPages: totalPages,
+      totalProducts: totalProducts
     });
   })
-  .catch(err => console.log(err))
+  .catch(err => {
+    console.log(err);
+    next(err);
+  })
 };
 
 exports.getProduct = (req, res, next) => {
@@ -48,11 +90,7 @@ exports.getProduct = (req, res, next) => {
   });
 }
 
-exports.getCart = (req, res, next) => {
-  console.log("req: ");
-  
-  console.log(req.user);
-  
+exports.getCart = (req, res, next) => {  
   req.user.getCart()
   .then(products => {
     res.render("shop/cart", {
@@ -64,27 +102,6 @@ exports.getCart = (req, res, next) => {
     });
   })
   .catch(err => console.log(err))
-  // const cartProductList = [];
-  // Cart.getCartProducts(cart => {
-  //   Product.fetchAll(products => {
-  //     if (cart && cart.products.length > 0) {
-  //       for (const product of products) {
-  //         const cartProductData = cart.products.find(p => p.id === product.id);
-  //         if (cartProductData) {
-  //           cartProductList.push({
-  //             productData: product,
-  //             qty: cartProductData.qty
-  //           });
-  //         }
-  //       }
-  //     }
-  //     res.render("shop/cart", {
-  //       path: "/cart",
-  //       docTitle: "Your Cart",
-  //       products: cartProductList
-  //     });
-  //   });
-  // });
 }
 
 exports.postCart = (req, res, next) => {
@@ -102,37 +119,6 @@ exports.postCart = (req, res, next) => {
     res.redirect('/cart');
     console.log(result);
   })
-
-  /* 
-  let fetchedCart;
-  let newQuantity = 1;
-  req.user.getCart()
-  .then(cart => {
-    fetchedCart = cart;
-    return cart.getProducts({where: {id: productId}})
-  })
-  .then(products => {
-    let product;
-    if (products.length > 0) {
-      product = products[0];
-    }
-    
-    if (product) {
-      //....
-      const oldQty = product.cartItem.quantity;
-      newQuantity = oldQty + 1;
-      return product;
-    }
-    return Product.findByPk(productId)
-    .catch(err => console.log(err))
-  }).then(product => {
-    return fetchedCart.addProduct(product, {through: {quantity: newQuantity} });
-  })
-  .then(() => {
-    res.redirect('/cart');
-  })
-  .catch(err => console.log(err)
-  ) */
 }
 
 exports.postOrder = (req, res, next) => {

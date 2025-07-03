@@ -52,6 +52,16 @@ class Product {
     .catch(err => console.log(err))
   }
 
+  static getTotalCount() {
+    const db = getDb();
+    return db.collection('products')
+    .countDocuments()
+    .then(count => {      
+      return count;
+    })
+    .catch(err => console.log(err))
+  }
+
   static findById(id) {
     const db = getDb();
     return db.collection('products').find({_id: mongodb.ObjectId.createFromHexString(id)})

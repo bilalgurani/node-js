@@ -25,8 +25,42 @@
       </div>
       <div class="pagination-container">
         <div class="page-count">
-          <a href="/products/?page=1" class="count">1</a>
-          <a href="/products/?page=2" class="count">2</a>
+          <% if (currentPage > 1) { %>
+            <a href="/?page=1" class="count">« First</a>
+          <% } %>
+          <% if (hasPreviousPage) { %>
+            <a href="/?page=<%= previousPage %>" class="count">‹ Previous</a>
+          <% } %>
+          <% 
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            // Adjust if we're near the beginning or end
+            if (currentPage <= 3) {
+              endPage = Math.min(4, totalPages);
+            }
+            if (currentPage >= totalPages - 2) {
+              startPage = Math.max(1, totalPages - 4);
+            }
+          %>
+          
+          <% for (let i = startPage; i <= endPage; i++) { %>
+            <% if (i === currentPage) { %>
+              <span class="count active"><%= i %></span>
+            <% } else { %>
+              <a href="/?page=<%= i %>" class="count"><%= i %></a>
+            <% } %>
+          <% } %>
+          
+          <!-- Next Page -->
+          <% if (hasNextPage) { %>
+            <a href="/?page=<%= nextPage %>" class="count">Next ›</a>
+          <% } %>
+          
+          <!-- Last Page -->
+          <% if (currentPage < totalPages) { %>
+            <a href="/?page=<%= lastPage %>" class="count">Last »</a>
+          <% } %>
         </div>
       </div>
       <% } else {%>

@@ -122,16 +122,29 @@ exports.getEditProducts = (req, res, next) => {
 
 exports.getAdminProducts = async (req, res, next) => {
   // Product.fetchAllByUserId(req.user._id)
-  const page = req.query.page;
-  Product.fetchAll(page, ITEMS_PER_PAGE)
-  .then(products => {
+  const page = +req.query.page || 1;
+  Promise.all([
+    Product.fetchAll(page, ITEMS_PER_PAGE),
+    Product.getTotalCount()
+  ])
+  .then(([products, totalProducts]) => {   
+    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
     res.render("admin/products", {
       prods: products,
       docTitle: "Admin Products", 
       path: "/admin/products",
-      isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name
-    });
+      userName: req?.user?.name,
+      currentPage: page,
+      hasNextPage: hasNextPage,
+      hasPreviousPage: hasPreviousPage,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: totalPages,
+      totalPages: totalPages,
+      totalProducts: totalProducts
+    })
   })
   .catch(err => console.log(err));
 }
