@@ -3,6 +3,31 @@
   <body>
     <%- include('../includes/navigation.ejs') %>
     <main class="main">
-      <h1>Checkout is working!</h1>
+      <% if (products.length > 0) { %>
+        <ul>
+          <% products.forEach(product => { %>
+            <div class="product-details">
+              <li class="checkout-list">
+                <p>Product Name: <span><%= product.title %></span></p>
+                <p>Quantity: <span><%= product.quantity %></span></p>
+                <p>Price: <span>$<%= product.price * product.quantity %></span></p>
+              </li>
+            </div>
+          <% }) %>
+        </ul>
+        <div class="center">
+          <div class="total-sum">
+            <p>Total: $<%= totalSum %></p>
+          </div>
+        </div>
+       
+      <% } else { %>
+        <div class="box">
+          <div class="inner">
+            <p class="empty-title">No Products in Carts!</p>
+            <p class="empty-message">We couldn't find any products to display right now. <a href="/">Go to shop page</a></p>
+          </div>
+        </div>
+      <% } %>
     </main>
     <%- include('../includes/end.ejs') %>

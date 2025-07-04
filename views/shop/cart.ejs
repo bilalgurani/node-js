@@ -6,20 +6,25 @@
      <% if (products.length > 0) { %>
       <ul>
         <% products.forEach(product => { %>
-          <li class="main-list">
-            <p><%= product.title %> (<%= product.quantity %>)</p>
-            <form action="/cart-delete-item" method="post">
-              <input type="hidden" value="<%= csrfToken %>" name="_csrf">
-              <input type="hidden" value="<%= product._id %>" name="productId">
-              <button class="btn btn-delete" type="submit">Delete</button>
-            </form>
-          </li>
+          <div class="product-details">
+            <li class="checkout-list">
+              <p>Product Name: <span><%= product.title %></span></p>
+                <p>Quantity: <span><%=  product.price %></span></p>
+                <p>Price: <span>$<%= product.price * product.quantity %></span></p>
+              <form action="/cart-delete-item" method="post">
+                <input type="hidden" value="<%= csrfToken %>" name="_csrf">
+                <input type="hidden" value="<%= product._id %>" name="productId">
+                <button class="btn btn-delete" type="submit">Delete</button>
+              </form>
+            </li>
+            </div>
         <% }) %>
       </ul>
       <div class="center">
         <form method="post" action="/create-order">
           <input type="hidden" value="<%= csrfToken %>" name="_csrf">
-          <button class="btn btn-outline" type="submit">Order Now!</button>
+          <a class="btn" href="/checkout">Order Now!</a>
+          <!-- <button class="btn btn-outline" type="submit"></button> -->
         </form>
       </div>
      

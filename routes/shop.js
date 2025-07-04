@@ -17,7 +17,9 @@ routes.get("/orders", isAuth, shopController.getOrders);
 
 routes.post("/create-order", isAuth, shopController.postOrder);
 
-routes.post("/cart-delete-item", isAuth, shopController.postDeleteInCarts)
+routes.post("/cart-delete-item", isAuth, shopController.postDeleteInCarts);
+
+routes.get("/checkout", isAuth, shopController.getCheckout);
 
 
 module.exports = routes;

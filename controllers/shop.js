@@ -109,10 +109,6 @@ exports.postCart = (req, res, next) => {
   
   Product.findById(productId)
   .then(product => {
-    console.log("REQ.USER: ");
-    
-    console.log(req.user);
-    
     return req.user.addToCart(product);
   })
   .then(result => {
@@ -145,10 +141,22 @@ exports.getOrders = (req, res, next) => {
 }
 
 exports.getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    path: "/checkout",
-    docTitle: "Checkout"
+  req.user.getCart()
+  .then(products => {
+    let total = 0;
+    products.forEach(p => {     
+      total += p.quantity * p.price;
+    });
+    res.render("shop/checkout", {
+      path: "/checkout",
+      docTitle: "Checkout page",
+      products: products,
+      isAuthenticated: req.session.isLoggedIn,
+      userName: req.user.name,
+      totalSum: total
+    });
   })
+  .catch(err => console.log(err))
 };
 
 exports.postDeleteInCarts = (req, res, next) => {

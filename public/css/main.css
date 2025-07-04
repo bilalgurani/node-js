@@ -35,6 +35,49 @@ body {
   list-style: none;
 
 }
+
+.checkout-list {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+}
+.checkout-list p {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #425675;
+}
+.checkout-list span {
+  color: #161616;
+  font-weight: bolder;
+}
+.total-sum {
+  padding: 1rem;
+  font-size: 1.6rem;
+  border: 1px solid white;
+  width: 20%;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bolder;
+}
+
+.product-details {
+  padding: 2rem;
+  background-color: #efefef;
+  border-radius: 16px;
+  margin: 1rem 0;
+}
+.center {
+  margin-top: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .main-list__item {
   padding: 0 1rem;
 }
@@ -162,10 +205,18 @@ transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-decoration: none;
   min-width: fit-content;
   flex: 1;
+
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  font-family: inherit; /* Ensures buttons inherit the same font as the page */
+  line-height: 1.2;
+  box-sizing: border-box;
 }
 .btn:hover {
   background-color: #738dff;
 }
+
 .btn-grp {
   display: flex;
   gap: 2rem;
