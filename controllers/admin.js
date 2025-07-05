@@ -120,11 +120,10 @@ exports.getEditProducts = (req, res, next) => {
   })
 };
 
-exports.getAdminProducts = async (req, res, next) => {
-  // Product.fetchAllByUserId(req.user._id)
+exports.getAdminProducts = async (req, res, next) => {  
   const page = +req.query.page || 1;
   Promise.all([
-    Product.fetchAll(page, ITEMS_PER_PAGE),
+    Product.fetchAllByUserId(req.user._id, page, ITEMS_PER_PAGE),
     Product.getTotalCount()
   ])
   .then(([products, totalProducts]) => {   

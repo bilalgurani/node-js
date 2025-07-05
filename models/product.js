@@ -29,12 +29,14 @@ class Product {
       .catch(err => console.log(err))
   }
 
-  static fetchAllByUserId(userId) {
+  static fetchAllByUserId(userId, page, itemsPerPage) {
     const db = getDb();
-    return db.collection('products').find({userId: userId}).toArray()
-    .then(products => {
-      console.log(products);
-      
+    return db.collection('products')
+    .find({userId: userId})
+    .skip((page - 1) * itemsPerPage)
+    .limit(itemsPerPage)
+    .toArray()
+    .then(products => {      
       return products;
     })
     .catch(err => console.log(err))
