@@ -4,7 +4,9 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "NODE_ENV=production MONGO_USER=bilalahamedgurani MONGO_PASSWORD=Bilal1khan MONGO_DEFAULT_DATABASE=shop node app.js",
+    "start-server": "node app.js",
+    "start:dev": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +14,7 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "compression": "^1.8.0",
     "connect-flash": "^0.1.1",
     "connect-mongodb-session": "^5.0.0",
     "csurf": "^1.11.0",
@@ -20,13 +23,16 @@
     "express-handlebars": "^8.0.2",
     "express-session": "^1.18.1",
     "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
     "mongodb": "^6.16.0",
+    "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "nodemailer": "^7.0.3",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "pg": "^8.16.0",
     "pug": "^3.0.3",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "stripe": "^18.3.0"
   },
   "devDependencies": {
     "@types/sequelize": "^4.28.20",
