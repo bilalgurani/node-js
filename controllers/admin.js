@@ -12,7 +12,7 @@ exports.getAddProducts = (req, res, next) => {
     path: "/admin/add-product",
     edit: false,
     isAuthenticated: req.session.isLoggedIn,
-    userName: req.user.name,
+    userName: req.user?.name,
     oldInput: {
       title: '',
       price: '',
@@ -42,7 +42,7 @@ exports.postAddProducts = async (req, res, next) => {
       path: "/admin/add-product",
       edit: false,
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name,
+      userName: req.user?.name,
       oldInput: {
         title: title,
         price: price,
@@ -104,7 +104,7 @@ exports.getEditProducts = (req, res, next) => {
       edit: editMode,
       product: product,
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name,
+      userName: req.user?.name,
       oldInput: {
         title: '',
         price: '',

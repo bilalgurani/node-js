@@ -56,7 +56,7 @@ exports.getProducts = async (req, res, next) => {
       docTitle: "All products ", 
       path: "/products",
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name,
+      userName: req?.user?.name,
       currentPage: page,
       hasNextPage: hasNextPage,
       hasPreviousPage: hasPreviousPage,
@@ -82,7 +82,7 @@ exports.getProduct = (req, res, next) => {
       path: "/products", 
       docTitle: product.title,
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name
+      userName: req.user?.name
     })
   })
   .catch(error => {
@@ -98,7 +98,7 @@ exports.getCart = (req, res, next) => {
       docTitle: "Your Cart",
       products: products,
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name
+      userName: req.user?.name
     });
   })
   .catch(err => console.log(err))
@@ -133,7 +133,7 @@ exports.getOrders = (req, res, next) => {
       docTitle: "Your Orders",
       orders: orders,
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name
+      userName: req.user?.name
     })
   })
   .catch(err => console.log(err))
@@ -152,7 +152,7 @@ exports.getCheckout = (req, res, next) => {
       docTitle: "Checkout page",
       products: products,
       isAuthenticated: req.session.isLoggedIn,
-      userName: req.user.name,
+      userName: req.user?.name,
       totalSum: total
     });
   })

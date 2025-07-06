@@ -694,7 +694,7 @@ exports.getNewPassword = (req, res, next) => {
       errorMessage: errorMessage,
       userId: user._id.toString(),
       passwordToken: token,
-      userName: req.user.name
+      userName: req.user?.name
     });
   })
   .catch(err => {
@@ -713,10 +713,6 @@ exports.postNewPassword = (req, res, next) => {
   let resetUser;
   User.findOneWithTokenAndUserId(passwordToken, tokenExpiry, userId)
   .then(user => {
-    console.log("----USER-----");
-    
-    console.log(user);
-    
     resetUser = user;
     return bcrypt.hash(newPassword, 12)
   })
